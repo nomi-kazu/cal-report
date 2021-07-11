@@ -1,8 +1,7 @@
-FROM node:14.4.0-alpine
+FROM node:14.17.1-alpine
 
 ARG WORKDIR
 ARG CONTAINER_PORT
-ARG API_URL
 
 ENV HOME=/${WORKDIR} \
     LANG=C.UTF-8 \
@@ -11,21 +10,22 @@ ENV HOME=/${WORKDIR} \
     API_URL=${API_URL} \
     NPM_CONFIG_PRODUCTION=false
 
+RUN apk update && apk add \
+    python\
+    make\
+    g++
+
 RUN echo ${HOME}
 RUN echo ${CONTAINER_PORT}
 RUN echo ${API_URL}
 
 WORKDIR ${HOME}
 
-# COPY package*.json ./
+COPY package*.json ./
+RUN yarn install
 
-# RUN apk update && \
-#     apk upgrade && \
-#     apk add --no-cache make gcc g++ python && \
-#     yarn install
+COPY . .
 
-# COPY . .
-
-# RUN yarn run build
+RUN yarn run build
 
 EXPOSE ${CONTAINER_PORT}
